@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<!--
+    ライセンス：  本コードはCC0でライセンスされています。著作権に関するあらゆる権利を放棄（または不行使）します。<http://creativecommons.org/publicdomain/zero/1.0/deed.ja>
+    免責事項：　　本コードは無保証です。本コードを利用して問題が起きた際に製作者は一切の責任を負いません。
+
+    概要：
+        HTML CSS JavaScriptで時計の針の画像をアナログ時計のように動かすコード。OBSのブラウザソースで呼び出すことを想定。
+    使用方法：
+        ○素材の準備
+          ・時計の画像を用意。①背景、②時針、③分針、④秒針の4つのレイヤーに分割してそれぞれ同じ大きさの画像ファイルとして保存。
+          ・4つの画像ファイルと本HTMLファイルを同じフォルダに配置。
+        ○コードの編集（★の行を編集）
+          ・画像指定部（<img src= 以下）を用意したファイル名に変更。使わない画像についてはコメントアウトする。
+          ・時計の中心（回転の中心）の座標[px]を--x、--y プロパティに設定。
+          ・用意した画像の針の向きに合わせて角度補正値をimg_angle_h、img_angle_m、img_angle_sに設定。
+-->
+<html>
+    <head><meta charset="utf-8"></head>
+
+    <body>
+        <img src="./background.png" id="background"> <!-- ★①背景の画像を指定 -->
+        <img src="./hand_h.png" id="hand_h">         <!-- ★②時針の画像を指定 -->
+        <img src="./hand_m.png" id="hand_m">         <!-- ★③分針の画像を指定 -->
+        <!-- <img src="./hand_s.png" id="hand_s"> --><!-- ★④秒針の画像を指定 -->
+
+        <style>
+            /* 回転中心を指定 */
+            :root {
+                --x:  877px; /* ★回転の中心のx座標を指定 */
+                --y: 1764px; /* ★回転の中心のy座標を指定 */
+            }
+            
+            /* 背景 */
+            #background {
+                position: absolute;
+            }
+    
+            /* 時針 */
+            #hand_h {
+                position: absolute;
+                transform-origin: var(--x) var(--y);        /* 回転の中心を指定 */
+                animation: rotate_h 43200s linear infinite; /* 43200秒（12時間）で一周 */
+            }
+    
+            /* 分針 */
+            #hand_m {
+                position: absolute;
+                transform-origin: var(--x) var(--y);       /* 回転の中心を指定 */
+                animation: rotate_m 3600s linear infinite; /* 3600秒（60分）で一周 */
+            }
+    
+            /* 秒針 */
+            #hand_s {
+                position: absolute;
+                transform-origin: var(--x) var(--y);     /* 回転の中心を指定 */
+                animation: rotate_s 60s linear infinite; /* 60秒で一周 */
+            }
+        </style>
+    
+        <script type="text/javascript">
+            // 素材画像の針が真上を向いていない場合はここに角度補正値[°]を入力する（プラス：時計回り　マイナス：反時計回り）
+            var img_angle_h =  60; // ★時針の角度補正値[°]を指定
+            var img_angle_m = 180; // ★分針の角度補正値[°]を指定
+            var img_angle_s =   0; // ★秒針の角度補正値[°]を指定
+    
+            // 現在時刻取得
+            var t = new Date();
+            var h = t.getHours();
+            var m = t.getMinutes();
+            var s = t.getSeconds();
+    
+            // 現在時刻から初期角度を算出(度)
+            var ini_angle_h = img_angle_h + (h*3600 + m*60 + s)/120;
+            var ini_angle_m = img_angle_m + (m*60 + s)/10;
+            var ini_angle_s = img_angle_s + s*6;
+            
+            // アニメーションのキーフレームを設定
+            var animation_h = "@keyframes rotate_h {0% {transform: rotate(" + ini_angle_h + "deg)}100% {transform: rotate(" + (ini_angle_h + 360) + "deg)}}";
+            var animation_m = "@keyframes rotate_m {0% {transform: rotate(" + ini_angle_m + "deg)}100% {transform: rotate(" + (ini_angle_m + 360) + "deg)}}";
+            var animation_s = "@keyframes rotate_s {0% {transform: rotate(" + ini_angle_s + "deg)}100% {transform: rotate(" + (ini_angle_s + 360) + "deg)}}";
+            var animation = document.createElement("style");
+            animation.innerHTML = animation_h + animation_m + animation_s;
+            document.body.appendChild(animation);
+        </script>
+    </body>
+</html>
